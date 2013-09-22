@@ -1,4 +1,4 @@
 executor
 ========
 
-Java helper libreray to safely execute an external process
+Java helper library to safely execute an external process
