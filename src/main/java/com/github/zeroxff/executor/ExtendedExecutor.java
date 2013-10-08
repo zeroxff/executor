@@ -46,6 +46,7 @@ public class ExtendedExecutor {
 	private long maxExecutiontime = ExecuteWatchdog.INFINITE_TIMEOUT;
 	private File workingDirecory = null;
 	private boolean mergeOutStreams = false;
+	private boolean quoteCommandlineArgs = true;
 
 	/*
 	 * Out
@@ -139,6 +140,16 @@ public class ExtendedExecutor {
 		return this;
 	}
 
+	public ExtendedExecutor withArgumentQuoting() {
+		this.quoteCommandlineArgs = true;
+		return this;
+	}
+
+	public ExtendedExecutor withoutArgumentQuoting() {
+		this.quoteCommandlineArgs = false;
+		return this;
+	}
+
 	public ExtendedExecutor clear() {
 		this.clearIn();
 		this.clearOut();
@@ -172,7 +183,7 @@ public class ExtendedExecutor {
 			// load the command line as an array of strings
 			CommandLine cmdLine = new CommandLine(this.commandLine[0]);
 			for (int counter = 1; counter < commandLine.length; counter++) {
-				cmdLine.addArgument((this.commandLine[counter]));
+				cmdLine.addArgument(this.commandLine[counter], quoteCommandlineArgs);
 			}
 
 			// load the substitution map, if defined
@@ -181,7 +192,8 @@ public class ExtendedExecutor {
 			}
 
 			// load the watchdog timer, it can be set to infinite time
-			ExecuteWatchdog watchdog = new ExecuteWatchdog(this.maxExecutiontime);
+			ExecuteWatchdog watchdog = new ExecuteWatchdog(
+					this.maxExecutiontime);
 			ExtendedResultHandler resultHandler = new ExtendedResultHandler(
 					watchdog);
 
@@ -301,6 +313,7 @@ public class ExtendedExecutor {
 		maxExecutiontime = ExecuteWatchdog.INFINITE_TIMEOUT;
 		workingDirecory = null;
 		mergeOutStreams = false;
+		quoteCommandlineArgs = true;
 	}
 
 	private void clearOut() {

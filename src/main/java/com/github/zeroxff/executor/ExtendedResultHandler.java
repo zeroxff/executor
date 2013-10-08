@@ -45,7 +45,6 @@ public class ExtendedResultHandler extends DefaultExecuteResultHandler {
 
     @Override
     public void onProcessFailed(ExecuteException e) {
-        // TODO Auto-generated method stub
         super.onProcessFailed(e);
         if (watchdog != null && watchdog.killedProcess()) {
             exitMode = ExecuteResult.ERROR_TIMED_OUT;
