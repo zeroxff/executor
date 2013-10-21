@@ -47,6 +47,8 @@ public class ExtendedExecutor {
 	private File workingDirecory = null;
 	private boolean mergeOutStreams = false;
 	private boolean quoteCommandlineArgs = true;
+	private boolean enableAllLinesOut = false;
+	private boolean enableAllLinesErr = false;
 
 	/*
 	 * Out
@@ -55,6 +57,8 @@ public class ExtendedExecutor {
 	private int returnCode = Executor.INVALID_EXITVALUE;
 	private List<String> outputLines;
 	private List<String> errorLines;
+	private List<String> allOutputLines;
+	private List<String> allErrorLines;
 	private Throwable exception;
 	private String message;
 
@@ -86,6 +90,14 @@ public class ExtendedExecutor {
 
 	public String getMessage() {
 		return message;
+	}
+
+	public List<String> getAllOutputLines() {
+		return allOutputLines;
+	}
+
+	public List<String> getAllErrorLines() {
+		return allErrorLines;
 	}
 
 	// fluent interface
@@ -150,6 +162,16 @@ public class ExtendedExecutor {
 		return this;
 	}
 
+	public ExtendedExecutor withAllOutputLines() {
+		this.enableAllLinesOut = true;
+		return this;
+	}
+
+	public ExtendedExecutor withAllErrorLines() {
+		this.enableAllLinesErr = true;
+		return this;
+	}
+
 	public ExtendedExecutor clear() {
 		this.clearIn();
 		this.clearOut();
@@ -183,7 +205,8 @@ public class ExtendedExecutor {
 			// load the command line as an array of strings
 			CommandLine cmdLine = new CommandLine(this.commandLine[0]);
 			for (int counter = 1; counter < commandLine.length; counter++) {
-				cmdLine.addArgument(this.commandLine[counter], quoteCommandlineArgs);
+				cmdLine.addArgument(this.commandLine[counter],
+						quoteCommandlineArgs);
 			}
 
 			// load the substitution map, if defined
@@ -206,6 +229,9 @@ public class ExtendedExecutor {
 			} else {
 				outLinee = new OutStreamProcessor();
 			}
+			if (this.enableAllLinesOut) {
+				outLinee.enableAllLines();
+			}
 			if (mergeOutStreams) {
 				// Using Std out for the output/error stream
 				streamHandler = new PumpStreamHandler(outLinee);
@@ -214,6 +240,9 @@ public class ExtendedExecutor {
 					errLinee = new OutStreamProcessor(errorFilter);
 				} else {
 					errLinee = new OutStreamProcessor();
+				}
+				if (enableAllLinesErr) {
+					errLinee.enableAllLines();
 				}
 				// Using Std out for the output/error stream
 				streamHandler = new PumpStreamHandler(outLinee, errLinee);
@@ -265,9 +294,11 @@ public class ExtendedExecutor {
 
 			if (outLinee != null) {
 				outputLines = outLinee.getLines();
+				allOutputLines = outLinee.getAllLines();
 			}
 			if (errLinee != null) {
 				errorLines = errLinee.getLines();
+				allErrorLines = errLinee.getAllLines();
 			}
 
 			this.closeStreams(outLinee, errLinee);
@@ -314,6 +345,8 @@ public class ExtendedExecutor {
 		workingDirecory = null;
 		mergeOutStreams = false;
 		quoteCommandlineArgs = true;
+		enableAllLinesOut = false;
+		enableAllLinesErr = false;
 	}
 
 	private void clearOut() {
@@ -321,6 +354,8 @@ public class ExtendedExecutor {
 		returnCode = Executor.INVALID_EXITVALUE;
 		outputLines = null;
 		errorLines = null;
+		allOutputLines = null;
+		allErrorLines = null;
 		exception = null;
 		message = null;
 	}

@@ -32,7 +32,8 @@ import org.apache.commons.exec.LogOutputStream;
  */
 public class OutStreamProcessor extends LogOutputStream {
     private List<Pattern> patternList = null;
-    private List<String> linee = new ArrayList<>();
+    private List<String> lines = new ArrayList<>();
+    private List<String> allLines = null;
 
     public OutStreamProcessor() {
         super();
@@ -51,23 +52,34 @@ public class OutStreamProcessor extends LogOutputStream {
         super(level);
         this.patternList = patternList;
     }
+    
+    public void enableAllLines() {
+    	allLines = new ArrayList<>();
+    }
 
     @Override
     protected void processLine(String linea, int livello) {
         if (patternList != null) {
             for (Pattern tmpPattern : patternList) {
                 if (tmpPattern.matcher(linea).matches()) {
-                    linee.add(linea);
+                	lines.add(linea);
                     break;
                 }
             }
         } else {
-            linee.add(linea);
+        	lines.add(linea);
+        }
+        if (allLines != null) {
+        	allLines.add(linea);
         }
     }
 
     public List<String> getLines() {
-        return linee;
+        return lines;
+    }
+    
+    public List<String> getAllLines() {
+        return allLines;
     }
 
 }
